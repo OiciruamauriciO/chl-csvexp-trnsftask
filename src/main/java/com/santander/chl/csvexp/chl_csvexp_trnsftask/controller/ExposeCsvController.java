@@ -28,6 +28,7 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import com.santander.chl.csvexp.chl_csvexp_trnsftask.dto.CsvCtlRequest;
 import com.santander.chl.csvexp.chl_csvexp_trnsftask.dto.CsvRequest;
 import com.santander.chl.csvexp.chl_csvexp_trnsftask.mock.CustomerBean;
 import com.santander.chl.csvexp.chl_csvexp_trnsftask.response.GenericResponse;
@@ -119,6 +120,38 @@ public class ExposeCsvController {
 			writer.write(respList);
 		} catch (Exception e) {
 			throw new RuntimeException("Exception while Exporting csv file");
+		}
+	}
+	
+	@GetMapping("/export-csv-ctl-file")
+	@ResponseStatus(HttpStatus.OK)
+	public void exportCSVCTLFile(HttpServletResponse response)
+			throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException, URISyntaxException {
+
+		String filename = "test-data-csvctl.csv";
+		List<CsvCtlRequest> requestList = new ArrayList<>();
+		requestList.add(new CsvCtlRequest( "Andres", "Diaz", "Chileno", "Cedula", 1, "01/01/2000", "Masculino"));
+		requestList.add(new CsvCtlRequest( "Jose", "Ugarte", "Chileno", "Cedula", 2, "01/01/2000", "Masculino"));		
+		requestList.add(new CsvCtlRequest( "Marcelo", "Salas", "Chileno", "Cedula", 3, "01/01/2000", "Masculino"));
+		requestList.add(new CsvCtlRequest( "Matias", "Vidal", "Chileno", "Cedula", 4, "01/01/2000", "Masculino"));		
+		requestList.add(new CsvCtlRequest( "Mauricio", "Gonzalez", "Chileno", "Cedula", 5, "28/11/1983", "Masculino"));
+		requestList.add(new CsvCtlRequest( "Pilar", "Torres", "Chileno", "Cedula", 6, "01/01/2000", "Masculino"));
+		requestList.add(new CsvCtlRequest( "Rene", "Estay", "Chileno", "Cedula", 7, "01/01/2000", "Masculino"));		
+		requestList.add(new CsvCtlRequest( "Sebastian", "Droguett", "Chileno", "Cedula", 8, "01/01/2000", "Masculino"));		
+		exportCsvCtlFile(filename, response, requestList, CsvCtlRequest.class);
+	}
+
+	public static <T> void exportCsvCtlFile(String fileName, HttpServletResponse response, List<T> respList, Class<T> reqClass)
+			throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
+		response.setContentType("text/csv");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+		try {
+			StatefulBeanToCsv<T> writer = new StatefulBeanToCsvBuilder<T>(response.getWriter())
+					.withQuotechar(CSVWriter.DEFAULT_QUOTE_CHARACTER).withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+					.withOrderedResults(true).build();
+			writer.write(respList);
+		} catch (Exception e) {
+			throw new RuntimeException("Exception while Exporting csv/ctl file");
 		}
 	}
 
